@@ -27,8 +27,8 @@ ________________________________________________________________________________
 ___________________________________________________________________________________________________________
 ##### Exemplo de como deverá ser o arquivo ```filmes.txt```
 - Cada linha representa um filme cadastrado pelo administrador com:
-```Nome | Duração (min) | Gênero | Ano de Lançamento```
+- ```Nome | Duração (min) | Gênero | Ano de Lançamento```
 ___________________________________________________________________________________________________________
 ##### Exemplo de como deverá ser o arquivo ```assistidos.txt```
 - Cada linha representa um filme assistido por um usuário com:
-```Usuário | Nome do Filme | Plataforma | Data```
+- ```Usuário | Nome do Filme | Plataforma | Data```
