@@ -1,5 +1,6 @@
 # Tv-Time
 EN: Application for managing preferences about movies.
+
 PT-BR: Aplicação para gerenciamento de preferências sobre filmes.
 
 ## Estrutura do Código
