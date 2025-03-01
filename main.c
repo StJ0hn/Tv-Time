@@ -79,7 +79,8 @@ bool validarData(const char *data) {
 }
 
 void limparBuffer() {
-
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 Usuario* fazerLogin(char *login, char *senha) {
