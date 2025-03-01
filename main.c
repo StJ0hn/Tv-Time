@@ -99,11 +99,56 @@ void assistirFilme() {
 }
 
 void listarAssistidos() {
+     if (!usuarioLogado) {
+        printf("\nFaça login primeiro!\n");
+        return;
+    }
     
+    printf("\n=== Filmes Assistidos ===\n");
+    int contador = 0;
+    for (int i = 0; i < totalAssistidos; i++) {
+        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+            for (int j = 0; j < totalFilmes; j++) {
+                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
+                    int h = filmes[j].duracaoMinutos / 60;
+                    int m = filmes[j].duracaoMinutos % 60;
+                    printf("%d. %s (%dh%02dmin) - Assistido em %s via %s\n",
+                          ++contador,
+                          filmes[j].nome, 
+                          h, m,
+                          assistidos[i].quando,
+                          assistidos[i].onde);
+                    break;
+                }
+            }
+        }
+    }
+    if (contador == 0) printf("Nenhum filme assistido ainda!\n");
 }
 
 void estatisticas() {
+    if (!usuarioLogado || usuarioLogado->isAdmin) {
+        printf("\nAcesso restrito a usuarios comuns!\n");
+        return;
+    }
     
+    int totalMinutos = 0;
+    for (int i = 0; i < totalAssistidos; i++) {
+        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+            for (int j = 0; j < totalFilmes; j++) {
+                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
+                    totalMinutos += filmes[j].duracaoMinutos;
+                    break;
+                }
+            }
+        }
+    }
+    
+    printf("\n=== Estatisticas ===\n");
+    printf("Total de filmes assistidos: %d\n", totalAssistidos);
+    printf("Tempo total: %dh%02dmin\n\n", 
+          totalMinutos / 60, 
+          totalMinutos % 60); 
 }
 
 // ===================== MENUS =====================
