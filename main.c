@@ -46,7 +46,7 @@ void limparBuffer();
 
 // ===================== FUNÇÕES DE ARQUIVO =====================
 void salvarUsuarios() {
-   FILE *file = fopen("usuarios.txt", "w");
+    FILE *file = fopen("usuarios.txt", "w");
     if (!file) {
         printf("Erro ao salvar usuários!\n");
         return;
@@ -60,6 +60,7 @@ void salvarUsuarios() {
     }
     fclose(file);
 }
+
 void carregarUsuarios() {
     FILE *file = fopen("usuarios.txt", "r");
     if (!file) return;
@@ -139,7 +140,7 @@ void carregarAssistidos() {
 
 // ===================== FUNÇÕES DO SISTEMA =====================
 void hashSenha(char *senha) {
-    for(int i = 0; senha[i]; i++){
+    for(int i = 0; senha[i]; i++) {
         senha[i] = toupper(senha[i]) + 3;
     }
 }
@@ -166,14 +167,15 @@ Usuario* fazerLogin(char *login, char *senha) {
     hashSenha(senhaHash);
     
     for (int i = 0; i < totalUsuarios; i++) {
-        if (strcmp(usuarios[i].login, login) == 0 && strcmp(usuarios[i].senha, senhaHash) == 0) {
+        if (strcmp(usuarios[i].login, login) == 0 && 
+            strcmp(usuarios[i].senha, senhaHash) == 0) {
             return &usuarios[i];
         }
     }
     return NULL;
 }
 
-int cadastrarUsuario(char *login, char *senha, char *nome){
+int cadastrarUsuario(char *login, char *senha, char *nome) {
     for (int i = 0; i < totalUsuarios; i++) {
         if (strcmp(usuarios[i].login, login) == 0) return 0;
     }
@@ -284,11 +286,56 @@ void assistirFilme() {
 }
 
 void listarAssistidos() {
+    if (!usuarioLogado) {
+        printf("\nFaça login primeiro!\n");
+        return;
+    }
     
+    printf("\n=== Filmes Assistidos ===\n");
+    int contador = 0;
+    for (int i = 0; i < totalAssistidos; i++) {
+        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+            for (int j = 0; j < totalFilmes; j++) {
+                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
+                    int h = filmes[j].duracaoMinutos / 60;
+                    int m = filmes[j].duracaoMinutos % 60;
+                    printf("%d. %s (%dh%02dmin) - Assistido em %s via %s\n",
+                          ++contador,
+                          filmes[j].nome, 
+                          h, m,
+                          assistidos[i].quando,
+                          assistidos[i].onde);
+                    break;
+                }
+            }
+        }
+    }
+    if (contador == 0) printf("Nenhum filme assistido ainda!\n");
 }
 
 void estatisticas() {
+    if (!usuarioLogado || usuarioLogado->isAdmin) {
+        printf("\nAcesso restrito a usuarios comuns!\n");
+        return;
+    }
     
+    int totalMinutos = 0;
+    for (int i = 0; i < totalAssistidos; i++) {
+        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+            for (int j = 0; j < totalFilmes; j++) {
+                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
+                    totalMinutos += filmes[j].duracaoMinutos;
+                    break;
+                }
+            }
+        }
+    }
+    
+    printf("\n=== Estatisticas ===\n");
+    printf("Total de filmes assistidos: %d\n", totalAssistidos);
+    printf("Tempo total: %dh%02dmin\n\n", 
+          totalMinutos / 60, 
+          totalMinutos % 60);
 }
 
 // ===================== MENUS =====================
@@ -296,14 +343,120 @@ void menuAdmin();
 void menuUsuario();
 
 void menuInicial() {
-    
+    int opcao;
+    while (1) {
+        printf("\n=== TV Time ===\n");
+        printf("1. Cadastrar\n2. Login\n3. Sair\nEscolha: ");
+        
+        if (scanf("%d", &opcao) != 1) {
+            printf("Entrada invalida!\n");
+            limparBuffer();
+            continue;
+        }
+        limparBuffer();
+
+        switch (opcao) {
+            case 1: {
+                char login[50], senha[50], nome[50];
+                printf("\n--- Novo Cadastro ---\n");
+                printf("Login: ");
+                scanf("%49s", login);
+                printf("Senha: ");
+                scanf("%49s", senha);
+                printf("Nome: ");
+                scanf("%49s", nome);
+                limparBuffer();
+                
+                int res = cadastrarUsuario(login, senha, nome);
+                if (res == 1) {
+                    printf("\nCadastro realizado! ");
+                    if (totalUsuarios == 1) printf("(Voce e o administrador)");
+                    printf("\n");
+                } else if (res == 0) {
+                    printf("\nLogin ja existe!\n");
+                } else {
+                    printf("\nLimite de usuarios atingido!\n");
+                }
+                break;
+            }
+            case 2: {
+                char login[50], senha[50];
+                printf("\n--- Login ---\n");
+                printf("Login: ");
+                scanf("%49s", login);
+                printf("Senha: ");
+                scanf("%49s", senha);
+                limparBuffer();
+                
+                usuarioLogado = fazerLogin(login, senha);
+                if (usuarioLogado) {
+                    printf("\nBem-vindo, %s!\n", usuarioLogado->nome);
+                    if (usuarioLogado->isAdmin) menuAdmin();
+                    else menuUsuario();
+                } else {
+                    printf("\nCredenciais invalidas!\n");
+                }
+                break;
+            }
+            case 3:
+                printf("\nSaindo...\n");
+                exit(0);
+            default:
+                printf("\nOpção invalida!\n");
+        }
+    }
 }
 
 void menuAdmin() {
+    int opcao;
+    while (1) {
+        printf("\n=== Menu Admin ===\n");
+        printf("1. Cadastrar filme\n2. Logout\nEscolha: ");
+        
+        if (scanf("%d", &opcao) != 1) {
+            printf("Entrada invalida!\n");
+            limparBuffer();
+            continue;
+        }
+        limparBuffer();
 
+        if (opcao == 1) cadastrarFilme();
+        else if (opcao == 2) {
+            usuarioLogado = NULL;
+            return;
+        }
+        else printf("Opção invalida!\n");
+    }
 }
 
+void menuUsuario() {
+    int opcao;
+    while (1) {
+        printf("\n=== Menu Usuario ===\n");
+        printf("1. Registrar filme assistido\n");
+        printf("2. Listar filmes assistidos\n");
+        printf("3. Estatisticas\n");
+        printf("4. Logout\nEscolha: ");
+        
+        if (scanf("%d", &opcao) != 1) {
+            printf("Entrada invalida!\n");
+            limparBuffer();
+            continue;
+        }
+        limparBuffer();
 
+        switch (opcao) {
+            case 1: assistirFilme(); break;
+            case 2: listarAssistidos(); break;
+            case 3: estatisticas(); break;
+            case 4:
+                usuarioLogado = NULL;
+                return;
+            default:
+                printf("Opção invalida!\n");
+        }
+    }
+}
 
 int main() {
     carregarUsuarios();
