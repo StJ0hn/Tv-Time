@@ -60,9 +60,19 @@ void salvarUsuarios() {
     }
     fclose(file);
 }
-
 void carregarUsuarios() {
-  
+    FILE *file = fopen("usuarios.txt", "r");
+    if (!file) return;
+    
+    while (fscanf(file, "%49[^,],%49[^,],%49[^,],%d\n", 
+           usuarios[totalUsuarios].login,
+           usuarios[totalUsuarios].senha,
+           usuarios[totalUsuarios].nome,
+           &usuarios[totalUsuarios].isAdmin) == 4) {
+        totalUsuarios++;
+        if (totalUsuarios >= MAX_USUARIOS) break;
+    }
+    fclose(file);
 }
 
 void salvarFilmes() {
