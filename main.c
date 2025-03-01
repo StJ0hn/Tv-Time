@@ -145,7 +145,40 @@ void cadastrarFilme() {
 }
 
 void assistirFilme() {
-   
+    if (!usuarioLogado || usuarioLogado->isAdmin) {
+        printf("\nAcesso restrito a usuarios comuns!\n");
+        return;
+    }
+    
+    printf("\n=== Filmes Disponiveis ===\n");
+    for (int i = 0; i < totalFilmes; i++) {
+        printf("%d. %s\n", i+1, filmes[i].nome);
+    }
+    
+    int escolha;
+    do {
+        printf("\nEscolha o filme (1-%d): ", totalFilmes);
+        scanf("%d", &escolha);
+        limparBuffer();
+    } while (escolha < 1 || escolha > totalFilmes);
+    
+    FilmeAssistido novo;
+    strcpy(novo.usuarioLogin, usuarioLogado->login);
+    strcpy(novo.filmeNome, filmes[escolha-1].nome);
+    
+    printf("Onde assistiu (plataforma): ");
+    scanf(" %49[^\n]", novo.onde);
+    limparBuffer();
+    
+    do {
+        printf("Quando assistiu (DD/MM/AAAA): ");
+        scanf(" %10s", novo.quando);
+        limparBuffer();
+    } while (!validarData(novo.quando));
+    
+    assistidos[totalAssistidos++] = novo;
+    salvarAssistidos();
+    printf("\nRegistro salvo com sucesso!\n");
 }
 
 void listarAssistidos() {
