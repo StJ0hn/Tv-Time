@@ -83,7 +83,22 @@ void limparBuffer() {
 }
 
 Usuario* fazerLogin(char *login, char *senha) {
-
+    for (int i = 0; i < totalUsuarios; i++) {
+        if (strcmp(usuarios[i].login, login) == 0) return 0;
+    }
+    
+    if (totalUsuarios >= MAX_USUARIOS) return -1;
+    
+    Usuario novo;
+    strcpy(novo.login, login);
+    strcpy(novo.senha, senha);
+    hashSenha(novo.senha);
+    strcpy(novo.nome, nome);
+    novo.isAdmin = (totalUsuarios == 0) ? 1 : 0;
+    
+    usuarios[totalUsuarios++] = novo;
+    salvarUsuarios();
+    return 1;
 }
 
 int cadastrarUsuario(char *login, char *senha, char *nome) {
