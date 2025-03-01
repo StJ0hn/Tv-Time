@@ -2,18 +2,45 @@
 #include <stdlib.h>
 #include <string.h>
 
-// 🔹 1️⃣ Você - Cadastro e Login
-void cadastrarUsuario();  
-int fazerLogin();  
+// 🔹 1️⃣ Estrutura de dados do usuário
+typedef struct usuario_comum {
+    char nome[100];
+    char senha[9];
+    int admin;
+} Usuario_comum;
 
-// 🔹 2️⃣ Amigo 1 - Cadastro de filmes e Registrar filmes assistidos
-void cadastrarFilme();  
-void registrarFilmeAssistido();  
+// 🔹 2️⃣ Função para cadastrar usuário
+void cadastrarUsuario() {
+    // Implementar cadastro de usuário
+}
 
-// 🔹 3️⃣ Amigo 2 - Listar filmes assistidos e Estatísticas
-void listarFilmesAssistidos();  
-void mostrarEstatisticas();  
+// 🔹 3️⃣ Função para login do usuário
+int fazerLogin() {
+    // Implementar login do usuário
+    return 0; // Retornar status de login
+}
 
+// 🔹 4️⃣ Função para cadastro de filmes (Apenas Admin)
+void cadastrarFilme() {
+    // Implementar cadastro de filmes
+}
+
+// 🔹 5️⃣ Função para registrar filme assistido
+void registrarFilmeAssistido() {
+    // Implementar registro de filmes assistidos
+}
+
+// 🔹 6️⃣ Função para listar filmes assistidos
+void listarFilmesAssistidos() {
+    // Implementar listagem de filmes assistidos
+}
+
+// 🔹 7️⃣ Função para mostrar estatísticas de filmes assistidos
+void mostrarEstatisticas() {
+    // Implementar estatísticas de filmes assistidos
+}
+
+// 🔹 8️⃣ Função principal
 int main() {
     int opcao, logado = 0;
 
