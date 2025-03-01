@@ -2,16 +2,46 @@
 #include <stdlib.h>
 #include <string.h>
 
-// 🔹 1️⃣ Estrutura de dados do usuário
+#define MAXIMO_DE_USUARIOS 100
+#define MAXIMO_DE_FILMES 100
+#define MAX_FILMES_ASSISTIDOS 100
+
+
+//Struct para dados dos usuários
 typedef struct usuario_comum {
     char nome[100];
     char senha[9];
     int admin;
-} Usuario_comum;
+} usuario_comum;
 
-// 🔹 2️⃣ Função para cadastrar usuário
+//Struct para dados dos filmes
+typedef struct {
+    char nome[100];
+    int duracaoMinutos;
+    char genero[50];
+    int ano;
+} Filme;
+
+//Struct para filmes já assistidos
+typedef struct {
+    char usuarioLogin[50];
+    char filmeNome[100];
+    char onde[50];
+    char quando[11];
+} FilmeAssistido;
+
+
+//Função para cadastrar usuário
 void cadastrarUsuario() {
-    // Implementar cadastro de usuário
+    //Alocar memoria para usuario
+    usuario_comum *Usuario = malloc(sizeof(usuario_comum));
+    //Pedir nome para cadastro:
+    printf("Cadastre seu nome: ");
+    scanf("%s", Usuario->nome);
+    printf("Cadastre uma senha (apenas números): ");
+    scanf("%s", Usuario->senha);
+
+    FILE *arquivo = fopen("usuarios.txt", "r+");
 }
 
 // 🔹 3️⃣ Função para login do usuário
