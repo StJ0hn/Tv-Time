@@ -75,7 +75,14 @@ void hashSenha(char *senha) {
 }
 
 bool validarData(const char *data) {
-  
+    int dia, mes, ano;
+    if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3) return false;
+    
+    if (ano < 1900 || ano > 2100) return false;
+    if (mes < 1 || mes > 12) return false;
+    if (dia < 1 || dia > 31) return false;
+    
+    return true;  
 }
 
 void limparBuffer() {
