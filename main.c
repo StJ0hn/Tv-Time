@@ -71,7 +71,9 @@ void carregarAssistidos() {
 
 // ===================== FUNÇÕES DO SISTEMA =====================
 void hashSenha(char *senha) {
-   
+    for(int i = 0; senha[i]; i++) {
+        senha[i] = toupper(senha[i]) + 3;
+    }
 }
 
 bool validarData(const char *data) {
