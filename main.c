@@ -123,28 +123,73 @@ void salvarAssistidos() {
 }
 
 void carregarAssistidos() {
-
+    FILE *file = fopen("assistidos.txt", "r");
+    if (!file) return;
+    
+    while (fscanf(file, "%49[^,],%99[^,],%49[^,],%10s\n",
+           assistidos[totalAssistidos].usuarioLogin,
+           assistidos[totalAssistidos].filmeNome,
+           assistidos[totalAssistidos].onde,
+           assistidos[totalAssistidos].quando) == 4) {
+        totalAssistidos++;
+        if (totalAssistidos >= MAX_ASSISTIDOS) break;
+    }
+    fclose(file);
 }
 
 // ===================== FUNÇÕES DO SISTEMA =====================
 void hashSenha(char *senha) {
-   
+    for(int i = 0; senha[i]; i++){
+        senha[i] = toupper(senha[i]) + 3;
+    }
 }
 
 bool validarData(const char *data) {
-  
+    int dia, mes, ano;
+    if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3) return false;
+    
+    if (ano < 1900 || ano > 2100) return false;
+    if (mes < 1 || mes > 12) return false;
+    if (dia < 1 || dia > 31) return false;
+    
+    return true;
 }
 
 void limparBuffer() {
-    
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 Usuario* fazerLogin(char *login, char *senha) {
-
+    char senhaHash[50];
+    strcpy(senhaHash, senha);
+    hashSenha(senhaHash);
+    
+    for (int i = 0; i < totalUsuarios; i++) {
+        if (strcmp(usuarios[i].login, login) == 0 && strcmp(usuarios[i].senha, senhaHash) == 0) {
+            return &usuarios[i];
+        }
+    }
+    return NULL;
 }
 
-int cadastrarUsuario(char *login, char *senha, char *nome) {
+int cadastrarUsuario(char *login, char *senha, char *nome){
+    for (int i = 0; i < totalUsuarios; i++) {
+        if (strcmp(usuarios[i].login, login) == 0) return 0;
+    }
     
+    if (totalUsuarios >= MAX_USUARIOS) return -1;
+    
+    Usuario novo;
+    strcpy(novo.login, login);
+    strcpy(novo.senha, senha);
+    hashSenha(novo.senha);
+    strcpy(novo.nome, nome);
+    novo.isAdmin = (totalUsuarios == 0) ? 1 : 0;
+    
+    usuarios[totalUsuarios++] = novo;
+    salvarUsuarios();
+    return 1;
 }
 
 void cadastrarFilme() {
