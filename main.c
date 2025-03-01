@@ -79,26 +79,21 @@ bool validarData(const char *data) {
 }
 
 void limparBuffer() {
-    
+
 }
 
 Usuario* fazerLogin(char *login, char *senha) {
+    char senhaHash[50];
+    strcpy(senhaHash, senha);
+    hashSenha(senhaHash);
+    
     for (int i = 0; i < totalUsuarios; i++) {
-        if (strcmp(usuarios[i].login, login) == 0) return 0;
+        if (strcmp(usuarios[i].login, login) == 0 && 
+            strcmp(usuarios[i].senha, senhaHash) == 0) {
+            return &usuarios[i];
+        }
     }
-    
-    if (totalUsuarios >= MAX_USUARIOS) return -1;
-    
-    Usuario novo;
-    strcpy(novo.login, login);
-    strcpy(novo.senha, senha);
-    hashSenha(novo.senha);
-    strcpy(novo.nome, nome);
-    novo.isAdmin = (totalUsuarios == 0) ? 1 : 0;
-    
-    usuarios[totalUsuarios++] = novo;
-    salvarUsuarios();
-    return 1;
+    return NULL;
 }
 
 int cadastrarUsuario(char *login, char *senha, char *nome) {
