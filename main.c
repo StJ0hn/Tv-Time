@@ -1,65 +1,129 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <ctype.h>
+#include <stdbool.h>
 
-// 🔹 1️⃣ Você - Cadastro e Login
-void cadastrarUsuario();  
-int fazerLogin();  
+#define MAX_USUARIOS 100
+#define MAX_FILMES 100
+#define MAX_ASSISTIDOS 1000
 
-// 🔹 2️⃣ Amigo 1 - Cadastro de filmes e Registrar filmes assistidos
-void cadastrarFilme();  
-void registrarFilmeAssistido();  
+typedef struct {
+    char login[50];
+    char senha[50];
+    char nome[50];
+    int isAdmin;
+} Usuario;
 
-// 🔹 3️⃣ Amigo 2 - Listar filmes assistidos e Estatísticas
-void listarFilmesAssistidos();  
-void mostrarEstatisticas();  
+typedef struct {
+    char nome[100];
+    int duracaoMinutos;
+    char genero[50];
+    int ano;
+} Filme;
+
+typedef struct {
+    char usuarioLogin[50];
+    char filmeNome[100];
+    char onde[50];
+    char quando[11];
+} FilmeAssistido;
+
+// Variáveis globais
+Usuario usuarios[MAX_USUARIOS];
+Filme filmes[MAX_FILMES];
+FilmeAssistido assistidos[MAX_ASSISTIDOS];
+int totalUsuarios = 0;
+int totalFilmes = 0;
+int totalAssistidos = 0;
+Usuario *usuarioLogado = NULL;
+
+// Protótipos de funções
+void hashSenha(char *senha);
+bool validarData(const char *data);
+void limparBuffer();
+
+// ===================== FUNÇÕES DE ARQUIVO =====================
+void salvarUsuarios() {
+   
+}
+
+void carregarUsuarios() {
+  
+}
+
+void salvarFilmes() {
+   
+}
+
+void carregarFilmes() {
+    
+}
+
+void salvarAssistidos() {
+    
+}
+
+void carregarAssistidos() {
+   
+}
+
+// ===================== FUNÇÕES DO SISTEMA =====================
+void hashSenha(char *senha) {
+   
+}
+
+bool validarData(const char *data) {
+  
+}
+
+void limparBuffer() {
+    
+}
+
+Usuario* fazerLogin(char *login, char *senha) {
+
+}
+
+int cadastrarUsuario(char *login, char *senha, char *nome) {
+    
+}
+
+void cadastrarFilme() {
+    
+}
+
+void assistirFilme() {
+   
+}
+
+void listarAssistidos() {
+    
+}
+
+void estatisticas() {
+    
+}
+
+// ===================== MENUS =====================
+void menuAdmin();
+void menuUsuario();
+
+void menuInicial() {
+    
+}
+
+void menuAdmin() {
+
+}
+
+
 
 int main() {
-    int opcao, logado = 0;
-
-    do {
-        printf("\n===== TV TIME =====\n");
-        printf("1 - Cadastrar Usuário\n");
-        printf("2 - Login\n");
-        printf("3 - Cadastrar Filme (Admin)\n");
-        printf("4 - Registrar Filme Assistido\n");
-        printf("5 - Listar Filmes Assistidos\n");
-        printf("6 - Ver Estatísticas\n");
-        printf("0 - Sair\n");
-        printf("Escolha: ");
-        scanf("%d", &opcao);
-        getchar();
-
-        switch (opcao) {
-            case 1:
-                cadastrarUsuario();
-                break;
-            case 2:
-                logado = fazerLogin();
-                break;
-            case 3:
-                if (logado) cadastrarFilme();
-                else printf("Você precisa estar logado!\n");
-                break;
-            case 4:
-                if (logado) registrarFilmeAssistido();
-                else printf("Você precisa estar logado!\n");
-                break;
-            case 5:
-                if (logado) listarFilmesAssistidos();
-                else printf("Você precisa estar logado!\n");
-                break;
-            case 6:
-                if (logado) mostrarEstatisticas();
-                else printf("Você precisa estar logado!\n");
-                break;
-            case 0:
-                printf("Saindo...\n");
-                break;
-            default:
-                printf("Opção inválida!\n");
-        }
-    } while (opcao != 0);
-
+    carregarUsuarios();
+    carregarFilmes();
+    carregarAssistidos();
+    menuInicial();
     return 0;
 }
