@@ -76,7 +76,19 @@ void carregarUsuarios() {
 }
 
 void salvarFilmes() {
-   
+    FILE *file = fopen("filmes.txt", "w");
+    if (!file) {
+        printf("Erro ao salvar filmes!\n");
+        return;
+    }
+    for (int i = 0; i < totalFilmes; i++) {
+        fprintf(file, "%s,%d,%s,%d\n", 
+              filmes[i].nome, 
+              filmes[i].duracaoMinutos,
+              filmes[i].genero, 
+              filmes[i].ano);
+    }
+    fclose(file);
 }
 
 void carregarFilmes() {
