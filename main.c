@@ -193,7 +193,57 @@ int cadastrarUsuario(char *login, char *senha, char *nome){
 }
 
 void cadastrarFilme() {
+    if (!usuarioLogado || !usuarioLogado->isAdmin) {
+        printf("\nAcesso restrito a administradores!\n");
+        return;
+    }
     
+    Filme novo;
+    printf("\n--- Cadastro de Filme ---\n");
+    
+    // Nome
+    printf("Nome: ");
+    scanf(" %99[^\n]", novo.nome);
+    limparBuffer();
+    
+    // Duração
+    int horas, minutos;
+    do {
+        printf("Duracao (h:mm): ");
+        if (scanf("%d:%d", &horas, &minutos) != 2) {
+            printf("Formato invalido! Use h:mm\n");
+            limparBuffer();
+        } else if (horas < 0 || minutos < 0 || minutos >= 60) {
+            printf("Valores invalidos! Ex: 2:16\n");
+        }
+    } while (horas < 0 || minutos < 0 || minutos >= 60);
+    novo.duracaoMinutos = horas * 60 + minutos;
+    limparBuffer();
+    
+    // Gênero
+    printf("Genero: ");
+    scanf(" %49[^\n]", novo.genero);
+    limparBuffer();
+    
+    // Ano
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    do {
+        printf("Ano (1888-%d): ", tm.tm_year + 1900);
+        scanf("%d", &novo.ano);
+        limparBuffer();
+    } while(novo.ano < 1888 || novo.ano > (tm.tm_year + 1900));
+    
+    filmes[totalFilmes++] = novo;
+    salvarFilmes();
+    
+    printf("\nFilme cadastrado com sucesso:\n");
+    printf("Nome: %s\nDuracao: %dh%02dm\nGenero: %s\nAno: %d\n\n",
+          novo.nome, 
+          novo.duracaoMinutos / 60,
+          novo.duracaoMinutos % 60,
+          novo.genero, 
+          novo.ano);
 }
 
 void assistirFilme() {
