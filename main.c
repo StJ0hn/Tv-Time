@@ -46,7 +46,19 @@ void limparBuffer();
 
 // ===================== FUNÇÕES DE ARQUIVO =====================
 void salvarUsuarios() {
-   
+   FILE *file = fopen("usuarios.txt", "w");
+    if (!file) {
+        printf("Erro ao salvar usuários!\n");
+        return;
+    }
+    for (int i = 0; i < totalUsuarios; i++) {
+        fprintf(file, "%s,%s,%s,%d\n", 
+              usuarios[i].login, 
+              usuarios[i].senha,
+              usuarios[i].nome,
+              usuarios[i].isAdmin);
+    }
+    fclose(file);
 }
 
 void carregarUsuarios() {
