@@ -92,15 +92,38 @@ void salvarFilmes() {
 }
 
 void carregarFilmes() {
+    FILE *file = fopen("filmes.txt", "r");
+    if (!file) return;
     
+    while (fscanf(file, "%99[^,],%d,%49[^,],%d\n",
+           filmes[totalFilmes].nome,
+           &filmes[totalFilmes].duracaoMinutos,
+           filmes[totalFilmes].genero,
+           &filmes[totalFilmes].ano) == 4) {
+        totalFilmes++;
+        if (totalFilmes >= MAX_FILMES) break;
+    }
+    fclose(file);
 }
 
 void salvarAssistidos() {
-    
+    FILE *file = fopen("assistidos.txt", "w");
+    if (!file) {
+        printf("Erro ao salvar historicos!\n");
+        return;
+    }
+    for (int i = 0; i < totalAssistidos; i++) {
+        fprintf(file, "%s,%s,%s,%s\n", 
+              assistidos[i].usuarioLogin,
+              assistidos[i].filmeNome,
+              assistidos[i].onde,
+              assistidos[i].quando);
+    }
+    fclose(file);
 }
 
 void carregarAssistidos() {
-   
+
 }
 
 // ===================== FUNÇÕES DO SISTEMA =====================
