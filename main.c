@@ -95,7 +95,7 @@ void guardar_nome_filmes() {
     fclose(arquivoo);
 }
 
-void carregar_filmes_assistidos() {
+void carregar_filmes_cadastrados() {
     FILE *arquivoo = fopen("filmes.txt", "r");
     if (!arquivoo){
         return;
@@ -130,9 +130,11 @@ void salvar_filmes_assistidos() {
     fclose(arquivoo);
 }
 
-void carregarAssistidos() {
+void carregar_filmes_assistidos() {
     FILE *arquivoo = fopen("assistidos.txt", "r");
-    if (!arquivoo) return;
+    if (arquivoo == NULL){
+        return;
+    } 
     
     while (fscanf(arquivoo, "%49[^,],%99[^,],%49[^,],%10s\n",
            assistidos[total_filmes_assistidos].login_do_usuario_comum,
@@ -151,54 +153,73 @@ void seguranca_de_senha(char *senha) {
         char temp = toupper((unsigned char)senha[i]) + 3;
         if (temp > 255){ //tatar erro de conversão.
             temp -= 256;
-        }
-        
+        }  
+        senha[i] = temp;
     }
 }
 
 bool comfirmar_data(const char *data) {
-    int dia, mes, ano;
-    if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3) return false;
-    
-    if (ano < 1900 || ano > 2100) return false;
-    if (mes < 1 || mes > 12) return false;
-    if (dia < 1 || dia > 31) return false;
+    int dia;
+    int mes;
+    int ano;
+    if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3){ //verificar se a dta foi inserida no formato desejado
+        return false;
+    } 
+
+    if (ano < 1900 || ano > 2100){ //verificar se o ano inserido está no intervalo desejado
+        return false;
+    }
+
+    if (mes < 1 || mes > 12){ //verificando se o mês inserido está no formato desejado
+        return false;
+    }
+    if (dia < 1 || dia > 31){ //verificando se os dias estão de acordo com o calendario normal 
+        return false;
+    }
     
     return true;
 }
 
-void limpador_de_buffer() {
+void limpador_de_buffer() { //função para limpar o buffer de entrada
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-usuario_comum* fazerLogin(char *login, char *senha) {
-    char senhaHash[50];
-    strcpy(senhaHash, senha);
-    seguranca_de_senha(senhaHash);
+usuario_comum *efetuar_login(char *login, char *senha) {
+    char assegurar_senha[50];
+    strcpy(assegurar_senha, senha);
+    seguranca_de_senha(assegurar_senha);
     
     for (int i = 0; i < total_usuarios_cadastrados; i++) {
         if (strcmp(usuarios[i].login, login) == 0 && 
-            strcmp(usuarios[i].senha, senhaHash) == 0) {
+            strcmp(usuarios[i].senha, assegurar_senha) == 0){
             return &usuarios[i];
         }
     }
     return NULL;
 }
 
-int cadastrarUsuario(char *login, char *senha, char *nome) {
+int fazer_cadastro_usuario(char *login, char *senha, char *nome) {
     for (int i = 0; i < total_usuarios_cadastrados; i++) {
-        if (strcmp(usuarios[i].login, login) == 0) return 0;
+        if (strcmp(usuarios[i].login, login) == 0){
+            return 0;
+        } 
     }
     
-    if (total_usuarios_cadastrados >= MAX_USUARIOS) return -1;
+    if (total_usuarios_cadastrados >= MAX_USUARIOS){
+        return -1;
+    } 
     
     usuario_comum novo;
     strcpy(novo.login, login);
     strcpy(novo.senha, senha);
     seguranca_de_senha(novo.senha);
     strcpy(novo.nome, nome);
-    novo.eh_admin = (total_usuarios_cadastrados == 0) ? 1 : 0;
+    if (total_usuarios_cadastrados == 0) {
+        novo.eh_admin = 1;
+    } else {
+        novo.eh_admin = 0;
+    }
     
     usuarios[total_usuarios_cadastrados++] = novo;
     guardar_usuario_cadastrados();
@@ -378,7 +399,7 @@ void menuInicial() {
                 scanf("%49s", nome);
                 limpador_de_buffer();
                 
-                int res = cadastrarUsuario(login, senha, nome);
+                int res = fazer_cadastro_usuario(login, senha, nome);
                 if (res == 1) {
                     printf("\nCadastro realizado! ");
                     if (total_usuarios_cadastrados == 1) printf("(Voce e o administrador)");
@@ -399,7 +420,7 @@ void menuInicial() {
                 scanf("%49s", senha);
                 limpador_de_buffer();
                 
-                usuarioLogado = fazerLogin(login, senha);
+                usuarioLogado = efetuar_login(login, senha);
                 if (usuarioLogado) {
                     printf("\nBem-vindo, %s!\n", usuarioLogado->nome);
                     if (usuarioLogado->eh_admin) menuAdmin();
@@ -471,8 +492,8 @@ void menuUsuario() {
 
 int main() {
     pegar_lista_dados_usuarios();
+    carregar_filmes_cadastrados();
     carregar_filmes_assistidos();
-    carregarAssistidos();
     menuInicial();
     return 0;
 }
