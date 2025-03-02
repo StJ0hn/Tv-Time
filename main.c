@@ -39,7 +39,7 @@ filme filmes[MAX_FILMES];
 filmes_assistidos assistidos[MAX_ASSISTIDOS];
 int total_usuarios_cadastrados = 0;
 int total_de_filmes = 0;
-int totalAssistidos = 0;
+int total_filmes_assistidos = 0;
 usuario_comum *usuarioLogado = NULL;
 
 //funções para validar senhas, data e uma para limpar buffer de entrada 
@@ -97,12 +97,11 @@ void guardar_nome_filmes() {
 
 void carregar_filmes_assistidos() {
     FILE *arquivoo = fopen("filmes.txt", "r");
-    if (arquivoo == NULL){
-        printf("Erro na abertura do arquivo dos filmes :(");
+    if (!arquivoo){
         return;
     }    
     
-    while (fscanf(arquivoo, "%99[^,],%d,%49[^,],%d\n", //looping para percorrer todos os dados dos filmes
+    while(fscanf(arquivoo, "%99[^,],%d,%49[^,],%d\n", 
            filmes[total_de_filmes].nome,
            &filmes[total_de_filmes].duracao_do_filme,
            filmes[total_de_filmes].genero,
@@ -115,41 +114,45 @@ void carregar_filmes_assistidos() {
     fclose(arquivoo);
 }
 
-void salvarAssistidos() {
-    FILE *file = fopen("assistidos.txt", "w");
-    if (!file) {
-        printf("Erro ao salvar historicos!\n");
+void salvar_filmes_assistidos() {
+    FILE *arquivoo = fopen("assistidos.txt", "w");
+    if (arquivoo == NULL) {
+        printf("Erro ao salvar histórico de filmes assistidos.\n");
         return;
     }
-    for (int i = 0; i < totalAssistidos; i++) {
-        fprintf(file, "%s,%s,%s,%s\n", 
+    for (int i = 0; i < total_filmes_assistidos; i++) { //percorrer todos os filmes designados como assistidos
+        fprintf(arquivoo, "%s,%s,%s,%s\n", 
               assistidos[i].login_do_usuario_comum,
               assistidos[i].nome_filme_assistido,
               assistidos[i].plataforma,
               assistidos[i].data_da_visualização_filme);
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
 void carregarAssistidos() {
-    FILE *file = fopen("assistidos.txt", "r");
-    if (!file) return;
+    FILE *arquivoo = fopen("assistidos.txt", "r");
+    if (!arquivoo) return;
     
-    while (fscanf(file, "%49[^,],%99[^,],%49[^,],%10s\n",
-           assistidos[totalAssistidos].login_do_usuario_comum,
-           assistidos[totalAssistidos].nome_filme_assistido,
-           assistidos[totalAssistidos].plataforma,
-           assistidos[totalAssistidos].data_da_visualização_filme) == 4) {
-        totalAssistidos++;
-        if (totalAssistidos >= MAX_ASSISTIDOS) break;
+    while (fscanf(arquivoo, "%49[^,],%99[^,],%49[^,],%10s\n",
+           assistidos[total_filmes_assistidos].login_do_usuario_comum,
+           assistidos[total_filmes_assistidos].nome_filme_assistido,
+           assistidos[total_filmes_assistidos].plataforma,
+           assistidos[total_filmes_assistidos].data_da_visualização_filme) == 4) {
+        total_filmes_assistidos++;
+        if (total_filmes_assistidos >= MAX_ASSISTIDOS) break;
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
 // ===================== FUNÇÕES DO SISTEMA =====================
 void seguranca_de_senha(char *senha) {
     for(int i = 0; senha[i]; i++) {
-        senha[i] = toupper(senha[i]) + 3;
+        char temp = toupper((unsigned char)senha[i]) + 3;
+        if (temp > 255){ //tatar erro de conversão.
+            temp -= 256;
+        }
+        
     }
 }
 
@@ -288,8 +291,8 @@ void assistirFilme() {
         limpador_de_buffer();
     } while (!comfirmar_data(novo.data_da_visualização_filme));
     
-    assistidos[totalAssistidos++] = novo;
-    salvarAssistidos();
+    assistidos[total_filmes_assistidos++] = novo;
+    salvar_filmes_assistidos();
     printf("\nRegistro salvo com sucesso!\n");
 }
 
@@ -301,7 +304,7 @@ void listarAssistidos() {
     
     printf("\n=== Filmes Assistidos ===\n");
     int contador = 0;
-    for (int i = 0; i < totalAssistidos; i++) {
+    for (int i = 0; i < total_filmes_assistidos; i++) {
         if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
             for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
@@ -328,7 +331,7 @@ void estatisticas() {
     }
     
     int totalMinutos = 0;
-    for (int i = 0; i < totalAssistidos; i++) {
+    for (int i = 0; i < total_filmes_assistidos; i++) {
         if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
             for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
@@ -340,7 +343,7 @@ void estatisticas() {
     }
     
     printf("\n=== Estatisticas ===\n");
-    printf("Total de filmes assistidos: %d\n", totalAssistidos);
+    printf("Total de filmes assistidos: %d\n", total_filmes_assistidos);
     printf("Tempo total: %dh%02dmin\n\n", 
           totalMinutos / 60, 
           totalMinutos % 60);
