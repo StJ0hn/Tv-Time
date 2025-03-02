@@ -150,7 +150,7 @@ void carregar_filmes_assistidos() {
 // ===================== FUNÇÕES DO SISTEMA =====================
 void seguranca_de_senha(char *senha) {
     for(int i = 0; senha[i]; i++) {
-        char temp = toupper((unsigned char)senha[i]) + 3;
+        char temp = (char)toupper((unsigned char)senha[i]) + 3;
         if (temp > 255){ //tatar erro de conversão.
             temp -= 256;
         }  
@@ -318,8 +318,8 @@ void registrar_visualizacao_filme() {
     printf("\nRegistro salvo com sucesso!\n");
 }
 
-void listarAssistidos() {
-    if (!usuario_logado) {
+void listar_filmes_assistidos() {
+    if (usuario_logado == NULL) {
         printf("\nFaça login primeiro!\n");
         return;
     }
@@ -352,12 +352,12 @@ void estatisticas() {
         return;
     }
     
-    int totalMinutos = 0;
+    int total_de_tempo_assistido = 0;
     for (int i = 0; i < total_filmes_assistidos; i++) {
         if (strcmp(assistidos[i].login_do_usuario_comum, usuario_logado->login) == 0) {
             for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
-                    totalMinutos += filmes[j].duracao_do_filme;
+                    total_de_tempo_assistido += filmes[j].duracao_do_filme;
                     break;
                 }
             }
@@ -367,15 +367,15 @@ void estatisticas() {
     printf("\n=== Estatisticas ===\n");
     printf("Total de filmes assistidos: %d\n", total_filmes_assistidos);
     printf("Tempo total: %dh%02dmin\n\n", 
-          totalMinutos / 60, 
-          totalMinutos % 60);
+          total_de_tempo_assistido / 60, 
+          total_de_tempo_assistido % 60);
 }
 
 // ===================== MENUS =====================
-void menuAdmin();
-void menuUsuario();
+void menu_do_admim();
+void menu_do_usuario();
 
-void menuInicial() {
+void menu_da_pagina_inicial() {
     int opcao;
     while (1) {
         printf("\n=== TV Time ===\n");
@@ -400,12 +400,12 @@ void menuInicial() {
                 scanf("%49s", nome);
                 limpador_de_buffer();
                 
-                int res = fazer_cadastro_usuario(login, senha, nome);
-                if (res == 1) {
+                int resposta = fazer_cadastro_usuario(login, senha, nome);
+                if (resposta == 1) {
                     printf("\nCadastro realizado! ");
                     if (total_usuarios_cadastrados == 1) printf("(Voce e o administrador)");
                     printf("\n");
-                } else if (res == 0) {
+                } else if (resposta == 0) {
                     printf("\nLogin ja existe!\n");
                 } else {
                     printf("\nLimite de usuarios atingido!\n");
@@ -424,8 +424,8 @@ void menuInicial() {
                 usuario_logado = efetuar_login(login, senha);
                 if (usuario_logado) {
                     printf("\nBem-vindo, %s!\n", usuario_logado->nome);
-                    if (usuario_logado->eh_admin) menuAdmin();
-                    else menuUsuario();
+                    if (usuario_logado->eh_admin) menu_do_admim();
+                    else menu_do_usuario();
                 } else {
                     printf("\nCredenciais invalidas!\n");
                 }
@@ -440,7 +440,7 @@ void menuInicial() {
     }
 }
 
-void menuAdmin() {
+void menu_do_admim() {
     int opcao;
     while (1) {
         printf("\n=== Menu Admin ===\n");
@@ -462,7 +462,7 @@ void menuAdmin() {
     }
 }
 
-void menuUsuario() {
+void menu_do_usuario() {
     int opcao;
     while (1) {
         printf("\n=== Menu Usuario ===\n");
@@ -479,9 +479,14 @@ void menuUsuario() {
         limpador_de_buffer();
 
         switch (opcao) {
-            case 1: registrar_visualizacao_filme(); break;
-            case 2: listarAssistidos(); break;
-            case 3: estatisticas(); break;
+            case 1: 
+                registrar_visualizacao_filme(); break;
+            case 2: 
+                listar_filmes_assistidos(); 
+                break;
+            case 3: 
+                estatisticas(); 
+                break;
             case 4:
                 usuario_logado = NULL;
                 return;
@@ -495,6 +500,6 @@ int main() {
     pegar_lista_dados_usuarios();
     carregar_filmes_cadastrados();
     carregar_filmes_assistidos();
-    menuInicial();
+    menu_da_pagina_inicial();
     return 0;
 }
