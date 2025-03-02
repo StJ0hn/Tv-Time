@@ -364,7 +364,7 @@ void estatisticas() {
         }
     }
     
-    printf("\n=== Estatisticas ===\n");
+    printf("\n\033[1;32m=== Estatisticas ===\033[m\n");
     printf("Total de filmes assistidos: %d\n", total_filmes_assistidos);
     printf("Tempo total: %dh%02dmin\n\n", 
           total_de_tempo_assistido / 60, 
@@ -378,11 +378,11 @@ void menu_do_usuario();
 void menu_da_pagina_inicial() {
     int opcao;
     while (1) {
-        printf("\n=== TV Time ===\n");
-        printf("1. Cadastrar\n2. Login\n3. Sair\nEscolha: ");
+        printf("\n\033[1;34m === TV Time ===\033[m\n");
+        printf("\033[1;35m|1.Cadastrar|\033[m\n\033[1;31m|2. Login|\033[m\n\033[1;32m|3. Sair|\033[m\nEscolha: \033");
         
         if (scanf("%d", &opcao) != 1) {
-            printf("Entrada invalida!\n");
+            printf("\033[1;31mEntrada invalida!\033[m\n");
             limpador_de_buffer();
             continue;
         }
@@ -391,8 +391,8 @@ void menu_da_pagina_inicial() {
         switch (opcao) {
             case 1: {
                 char login[50], senha[50], nome[50];
-                printf("\n--- Novo Cadastro ---\n");
-                printf("Login: ");
+                printf("\n\033[1;34m--- Novo Cadastro ---\033[m\n");
+                printf("\033[1;31mLogin: \033[m");
                 scanf("%49s", login);
                 printf("Senha: ");
                 scanf("%49s", senha);
@@ -456,7 +456,7 @@ void menu_do_admim() {
         if (opcao == 1) fazer_cadastrar_filme();
         else if (opcao == 2) {
             usuario_logado = NULL;
-            return;
+            return; 
         }
         else printf("Opção invalida!\n");
     }
