@@ -38,7 +38,7 @@ usuario_comum usuarios[MAX_USUARIOS];
 filme filmes[MAX_FILMES];
 filmes_assistidos assistidos[MAX_ASSISTIDOS];
 int total_usuarios_cadastrados = 0;
-int totalFilmes = 0;
+int total_de_filmes = 0;
 int totalAssistidos = 0;
 usuario_comum *usuarioLogado = NULL;
 
@@ -85,7 +85,7 @@ void guardar_nome_filmes() {
         printf("Erro ao salvar filmes!\n");
         return;
     }
-    for (int i = 0; i < totalFilmes; i++) {
+    for (int i = 0; i < total_de_filmes; i++) {
         fprintf(arquivoo, "%s,%d,%s,%d\n", 
               filmes[i].nome, 
               filmes[i].duracao_do_filme,
@@ -95,19 +95,24 @@ void guardar_nome_filmes() {
     fclose(arquivoo);
 }
 
-void carregarFilmes() {
-    FILE *file = fopen("filmes.txt", "r");
-    if (!file) return;
+void carregar_filmes_assistidos() {
+    FILE *arquivoo = fopen("filmes.txt", "r");
+    if (arquivoo == NULL){
+        printf("Erro na abertura do arquivo dos filmes :(");
+        return;
+    }    
     
-    while (fscanf(file, "%99[^,],%d,%49[^,],%d\n",
-           filmes[totalFilmes].nome,
-           &filmes[totalFilmes].duracao_do_filme,
-           filmes[totalFilmes].genero,
-           &filmes[totalFilmes].ano) == 4) {
-        totalFilmes++;
-        if (totalFilmes >= MAX_FILMES) break;
+    while (fscanf(arquivoo, "%99[^,],%d,%49[^,],%d\n", //looping para percorrer todos os dados dos filmes
+           filmes[total_de_filmes].nome,
+           &filmes[total_de_filmes].duracao_do_filme,
+           filmes[total_de_filmes].genero,
+           &filmes[total_de_filmes].ano) == 4){
+        total_de_filmes++;
+        if (total_de_filmes >= MAX_FILMES){
+            break;
+        } 
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
 void salvarAssistidos() {
@@ -239,7 +244,7 @@ void cadastrarFilme() {
         limpador_de_buffer();
     } while(novo.ano < 1888 || novo.ano > (tm.tm_year + 1900));
     
-    filmes[totalFilmes++] = novo;
+    filmes[total_de_filmes++] = novo;
     guardar_nome_filmes();
     
     printf("\nFilme cadastrado com sucesso:\n");
@@ -258,16 +263,16 @@ void assistirFilme() {
     }
     
     printf("\n=== Filmes Disponiveis ===\n");
-    for (int i = 0; i < totalFilmes; i++) {
+    for (int i = 0; i < total_de_filmes; i++) {
         printf("%d. %s\n", i+1, filmes[i].nome);
     }
     
     int escolha;
     do {
-        printf("\nEscolha o filme (1-%d): ", totalFilmes);
+        printf("\nEscolha o filme (1-%d): ", total_de_filmes);
         scanf("%d", &escolha);
         limpador_de_buffer();
-    } while (escolha < 1 || escolha > totalFilmes);
+    } while (escolha < 1 || escolha > total_de_filmes);
     
     filmes_assistidos novo;
     strcpy(novo.login_do_usuario_comum, usuarioLogado->login);
@@ -298,7 +303,7 @@ void listarAssistidos() {
     int contador = 0;
     for (int i = 0; i < totalAssistidos; i++) {
         if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
-            for (int j = 0; j < totalFilmes; j++) {
+            for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
                     int h = filmes[j].duracao_do_filme / 60;
                     int m = filmes[j].duracao_do_filme % 60;
@@ -325,7 +330,7 @@ void estatisticas() {
     int totalMinutos = 0;
     for (int i = 0; i < totalAssistidos; i++) {
         if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
-            for (int j = 0; j < totalFilmes; j++) {
+            for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
                     totalMinutos += filmes[j].duracao_do_filme;
                     break;
@@ -463,7 +468,7 @@ void menuUsuario() {
 
 int main() {
     pegar_lista_dados_usuarios();
-    carregarFilmes();
+    carregar_filmes_assistidos();
     carregarAssistidos();
     menuInicial();
     return 0;
