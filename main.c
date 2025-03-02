@@ -40,7 +40,7 @@ filmes_assistidos assistidos[MAX_ASSISTIDOS];
 int total_usuarios_cadastrados = 0;
 int total_de_filmes = 0;
 int total_filmes_assistidos = 0;
-usuario_comum *usuarioLogado = NULL;
+usuario_comum *usuario_logado = NULL;
 
 //funções para validar senhas, data e uma para limpar buffer de entrada 
 void seguranca_de_senha(char *senha);
@@ -226,47 +226,47 @@ int fazer_cadastro_usuario(char *login, char *senha, char *nome) {
     return 1;
 }
 
-void cadastrarFilme() {
-    if (!usuarioLogado || !usuarioLogado->eh_admin) {
+void fazer_cadastrar_filme() {
+    if (usuario_logado == NULL || !usuario_logado->eh_admin){
         printf("\nAcesso restrito a administradores!\n");
         return;
     }
     
     filme novo;
-    printf("\n--- Cadastro de Filme ---\n");
+    printf("\n\033[1;32m--- Cadastro de Filme ---\033[m\n");
     
-    // Nome
     printf("Nome: ");
     scanf(" %99[^\n]", novo.nome);
     limpador_de_buffer();
     
-    // Duração
     int horas, minutos;
+
     do {
         printf("Duracao (h:mm): ");
-        if (scanf("%d:%d", &horas, &minutos) != 2) {
+        if (scanf("%d:%d", &horas, &minutos) != 2){
             printf("Formato invalido! Use h:mm\n");
             limpador_de_buffer();
-        } else if (horas < 0 || minutos < 0 || minutos >= 60) {
+        } 
+        else if (horas < 0 || minutos < 0 || minutos >= 60){
             printf("Valores invalidos! Ex: 2:16\n");
         }
-    } while (horas < 0 || minutos < 0 || minutos >= 60);
+    } 
+    while (horas < 0 || minutos < 0 || minutos >= 60);
     novo.duracao_do_filme = horas * 60 + minutos;
     limpador_de_buffer();
     
-    // Gênero
     printf("Genero: ");
     scanf(" %49[^\n]", novo.genero);
     limpador_de_buffer();
     
-    // Ano
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     do {
         printf("Ano (1888-%d): ", tm.tm_year + 1900);
         scanf("%d", &novo.ano);
         limpador_de_buffer();
-    } while(novo.ano < 1888 || novo.ano > (tm.tm_year + 1900));
+    }
+    while(novo.ano < 1888 || novo.ano > (tm.tm_year + 1900));
     
     filmes[total_de_filmes++] = novo;
     guardar_nome_filmes();
@@ -280,8 +280,8 @@ void cadastrarFilme() {
           novo.ano);
 }
 
-void assistirFilme() {
-    if (!usuarioLogado || usuarioLogado->eh_admin) {
+void registrar_visualizacao_filme() {
+    if (!usuario_logado || usuario_logado->eh_admin) {
         printf("\nAcesso restrito a usuarios comuns!\n");
         return;
     }
@@ -296,10 +296,11 @@ void assistirFilme() {
         printf("\nEscolha o filme (1-%d): ", total_de_filmes);
         scanf("%d", &escolha);
         limpador_de_buffer();
-    } while (escolha < 1 || escolha > total_de_filmes);
+    } 
+    while (escolha < 1 || escolha > total_de_filmes);
     
     filmes_assistidos novo;
-    strcpy(novo.login_do_usuario_comum, usuarioLogado->login);
+    strcpy(novo.login_do_usuario_comum, usuario_logado->login);
     strcpy(novo.nome_filme_assistido, filmes[escolha-1].nome);
     
     printf("Onde assistiu (plataforma): ");
@@ -318,7 +319,7 @@ void assistirFilme() {
 }
 
 void listarAssistidos() {
-    if (!usuarioLogado) {
+    if (!usuario_logado) {
         printf("\nFaça login primeiro!\n");
         return;
     }
@@ -326,7 +327,7 @@ void listarAssistidos() {
     printf("\n=== Filmes Assistidos ===\n");
     int contador = 0;
     for (int i = 0; i < total_filmes_assistidos; i++) {
-        if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
+        if (strcmp(assistidos[i].login_do_usuario_comum, usuario_logado->login) == 0) {
             for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
                     int h = filmes[j].duracao_do_filme / 60;
@@ -346,14 +347,14 @@ void listarAssistidos() {
 }
 
 void estatisticas() {
-    if (!usuarioLogado || usuarioLogado->eh_admin) {
+    if (!usuario_logado || usuario_logado->eh_admin) {
         printf("\nAcesso restrito a usuarios comuns!\n");
         return;
     }
     
     int totalMinutos = 0;
     for (int i = 0; i < total_filmes_assistidos; i++) {
-        if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
+        if (strcmp(assistidos[i].login_do_usuario_comum, usuario_logado->login) == 0) {
             for (int j = 0; j < total_de_filmes; j++) {
                 if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
                     totalMinutos += filmes[j].duracao_do_filme;
@@ -420,10 +421,10 @@ void menuInicial() {
                 scanf("%49s", senha);
                 limpador_de_buffer();
                 
-                usuarioLogado = efetuar_login(login, senha);
-                if (usuarioLogado) {
-                    printf("\nBem-vindo, %s!\n", usuarioLogado->nome);
-                    if (usuarioLogado->eh_admin) menuAdmin();
+                usuario_logado = efetuar_login(login, senha);
+                if (usuario_logado) {
+                    printf("\nBem-vindo, %s!\n", usuario_logado->nome);
+                    if (usuario_logado->eh_admin) menuAdmin();
                     else menuUsuario();
                 } else {
                     printf("\nCredenciais invalidas!\n");
@@ -452,9 +453,9 @@ void menuAdmin() {
         }
         limpador_de_buffer();
 
-        if (opcao == 1) cadastrarFilme();
+        if (opcao == 1) fazer_cadastrar_filme();
         else if (opcao == 2) {
-            usuarioLogado = NULL;
+            usuario_logado = NULL;
             return;
         }
         else printf("Opção invalida!\n");
@@ -478,11 +479,11 @@ void menuUsuario() {
         limpador_de_buffer();
 
         switch (opcao) {
-            case 1: assistirFilme(); break;
+            case 1: registrar_visualizacao_filme(); break;
             case 2: listarAssistidos(); break;
             case 3: estatisticas(); break;
             case 4:
-                usuarioLogado = NULL;
+                usuario_logado = NULL;
                 return;
             default:
                 printf("Opção invalida!\n");
