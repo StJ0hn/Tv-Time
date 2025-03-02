@@ -9,87 +9,90 @@
 #define MAX_FILMES 100
 #define MAX_ASSISTIDOS 1000
 
-typedef struct {
+//struct de usuario comum
+typedef struct usuario_comum{
     char login[50];
     char senha[50];
     char nome[50];
-    int isAdmin;
-} Usuario;
+    int eh_admin;
+}usuario_comum;
 
-typedef struct {
+//struct de cadastro de novos filmes feito pelo admin (primeiro usuario cadastrado no sistema)
+typedef struct filme{
     char nome[100];
-    int duracaoMinutos;
+    int duracao_do_filme;
     char genero[50];
     int ano;
-} Filme;
+}filme;
 
-typedef struct {
-    char usuarioLogin[50];
-    char filmeNome[100];
-    char onde[50];
-    char quando[11];
-} FilmeAssistido;
+//struct para registrar os filmes assistido pelo usuario comum
+typedef struct filmes_assistidos{
+    char login_do_usuario_comum[50];
+    char nome_filme_assistido[100];
+    char plataforma[50];
+    char data_da_visualização_filme[11];
+}filmes_assistidos;
 
-// Variáveis globais
-Usuario usuarios[MAX_USUARIOS];
-Filme filmes[MAX_FILMES];
-FilmeAssistido assistidos[MAX_ASSISTIDOS];
-int totalUsuarios = 0;
+//inicialização de variáveis globais
+usuario_comum usuarios[MAX_USUARIOS];
+filme filmes[MAX_FILMES];
+filmes_assistidos assistidos[MAX_ASSISTIDOS];
+int total_usuarios_cadastrados = 0;
 int totalFilmes = 0;
 int totalAssistidos = 0;
-Usuario *usuarioLogado = NULL;
+usuario_comum *usuarioLogado = NULL;
 
-// Protótipos de funções
-void hashSenha(char *senha);
-bool validarData(const char *data);
-void limparBuffer();
+//funções para validar senhas, data e uma para limpar buffer de entrada 
+void seguranca_de_senha(char *senha);
+bool comfirmar_data(const char *data);
+void limpador_de_buffer();
 
-// ===================== FUNÇÕES DE ARQUIVO =====================
-void salvarUsuarios() {
-    FILE *file = fopen("usuarios.txt", "w");
-    if (!file) {
+//__________funções para manipular os arquivoss____________
+void guardar_usuario_cadastrados() {
+    FILE *arquivoo = fopen("usuarios.txt", "w");
+    if (arquivoo == NULL) {
         printf("Erro ao salvar usuários!\n");
         return;
     }
-    for (int i = 0; i < totalUsuarios; i++) {
-        fprintf(file, "%s,%s,%s,%d\n", 
+    for (int i = 0; i < total_usuarios_cadastrados; i++) {
+        fprintf(arquivoo, "%s,%s,%s,%d\n", 
               usuarios[i].login, 
               usuarios[i].senha,
               usuarios[i].nome,
-              usuarios[i].isAdmin);
+              usuarios[i].eh_admin);
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
-void carregarUsuarios() {
-    FILE *file = fopen("usuarios.txt", "r");
-    if (!file) return;
+void pegar_lista_dados_usuarios() {
+    FILE *arquivoo = fopen("usuarios.txt", "r");
+    if (arquivoo == NULL) return;
     
-    while (fscanf(file, "%49[^,],%49[^,],%49[^,],%d\n", 
-           usuarios[totalUsuarios].login,
-           usuarios[totalUsuarios].senha,
-           usuarios[totalUsuarios].nome,
-           &usuarios[totalUsuarios].isAdmin) == 4) {
-        totalUsuarios++;
-        if (totalUsuarios >= MAX_USUARIOS) break;
+    while (fscanf(arquivoo, "%49[^,],%49[^,],%49[^,],%d\n", 
+           usuarios[total_usuarios_cadastrados].login,
+           usuarios[total_usuarios_cadastrados].senha,
+           usuarios[total_usuarios_cadastrados].nome,
+           &usuarios[total_usuarios_cadastrados].eh_admin) == 4) {
+        total_usuarios_cadastrados++;
+        if (total_usuarios_cadastrados >= MAX_USUARIOS) break;
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
-void salvarFilmes() {
-    FILE *file = fopen("filmes.txt", "w");
-    if (!file) {
+void guardar_nome_filmes() {
+    FILE *arquivoo = fopen("filmes.txt", "w");
+    if (!arquivoo) {
         printf("Erro ao salvar filmes!\n");
         return;
     }
     for (int i = 0; i < totalFilmes; i++) {
-        fprintf(file, "%s,%d,%s,%d\n", 
+        fprintf(arquivoo, "%s,%d,%s,%d\n", 
               filmes[i].nome, 
-              filmes[i].duracaoMinutos,
+              filmes[i].duracao_do_filme,
               filmes[i].genero, 
               filmes[i].ano);
     }
-    fclose(file);
+    fclose(arquivoo);
 }
 
 void carregarFilmes() {
@@ -98,7 +101,7 @@ void carregarFilmes() {
     
     while (fscanf(file, "%99[^,],%d,%49[^,],%d\n",
            filmes[totalFilmes].nome,
-           &filmes[totalFilmes].duracaoMinutos,
+           &filmes[totalFilmes].duracao_do_filme,
            filmes[totalFilmes].genero,
            &filmes[totalFilmes].ano) == 4) {
         totalFilmes++;
@@ -115,10 +118,10 @@ void salvarAssistidos() {
     }
     for (int i = 0; i < totalAssistidos; i++) {
         fprintf(file, "%s,%s,%s,%s\n", 
-              assistidos[i].usuarioLogin,
-              assistidos[i].filmeNome,
-              assistidos[i].onde,
-              assistidos[i].quando);
+              assistidos[i].login_do_usuario_comum,
+              assistidos[i].nome_filme_assistido,
+              assistidos[i].plataforma,
+              assistidos[i].data_da_visualização_filme);
     }
     fclose(file);
 }
@@ -128,10 +131,10 @@ void carregarAssistidos() {
     if (!file) return;
     
     while (fscanf(file, "%49[^,],%99[^,],%49[^,],%10s\n",
-           assistidos[totalAssistidos].usuarioLogin,
-           assistidos[totalAssistidos].filmeNome,
-           assistidos[totalAssistidos].onde,
-           assistidos[totalAssistidos].quando) == 4) {
+           assistidos[totalAssistidos].login_do_usuario_comum,
+           assistidos[totalAssistidos].nome_filme_assistido,
+           assistidos[totalAssistidos].plataforma,
+           assistidos[totalAssistidos].data_da_visualização_filme) == 4) {
         totalAssistidos++;
         if (totalAssistidos >= MAX_ASSISTIDOS) break;
     }
@@ -139,13 +142,13 @@ void carregarAssistidos() {
 }
 
 // ===================== FUNÇÕES DO SISTEMA =====================
-void hashSenha(char *senha) {
+void seguranca_de_senha(char *senha) {
     for(int i = 0; senha[i]; i++) {
         senha[i] = toupper(senha[i]) + 3;
     }
 }
 
-bool validarData(const char *data) {
+bool comfirmar_data(const char *data) {
     int dia, mes, ano;
     if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3) return false;
     
@@ -156,17 +159,17 @@ bool validarData(const char *data) {
     return true;
 }
 
-void limparBuffer() {
+void limpador_de_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-Usuario* fazerLogin(char *login, char *senha) {
+usuario_comum* fazerLogin(char *login, char *senha) {
     char senhaHash[50];
     strcpy(senhaHash, senha);
-    hashSenha(senhaHash);
+    seguranca_de_senha(senhaHash);
     
-    for (int i = 0; i < totalUsuarios; i++) {
+    for (int i = 0; i < total_usuarios_cadastrados; i++) {
         if (strcmp(usuarios[i].login, login) == 0 && 
             strcmp(usuarios[i].senha, senhaHash) == 0) {
             return &usuarios[i];
@@ -176,37 +179,37 @@ Usuario* fazerLogin(char *login, char *senha) {
 }
 
 int cadastrarUsuario(char *login, char *senha, char *nome) {
-    for (int i = 0; i < totalUsuarios; i++) {
+    for (int i = 0; i < total_usuarios_cadastrados; i++) {
         if (strcmp(usuarios[i].login, login) == 0) return 0;
     }
     
-    if (totalUsuarios >= MAX_USUARIOS) return -1;
+    if (total_usuarios_cadastrados >= MAX_USUARIOS) return -1;
     
-    Usuario novo;
+    usuario_comum novo;
     strcpy(novo.login, login);
     strcpy(novo.senha, senha);
-    hashSenha(novo.senha);
+    seguranca_de_senha(novo.senha);
     strcpy(novo.nome, nome);
-    novo.isAdmin = (totalUsuarios == 0) ? 1 : 0;
+    novo.eh_admin = (total_usuarios_cadastrados == 0) ? 1 : 0;
     
-    usuarios[totalUsuarios++] = novo;
-    salvarUsuarios();
+    usuarios[total_usuarios_cadastrados++] = novo;
+    guardar_usuario_cadastrados();
     return 1;
 }
 
 void cadastrarFilme() {
-    if (!usuarioLogado || !usuarioLogado->isAdmin) {
+    if (!usuarioLogado || !usuarioLogado->eh_admin) {
         printf("\nAcesso restrito a administradores!\n");
         return;
     }
     
-    Filme novo;
+    filme novo;
     printf("\n--- Cadastro de Filme ---\n");
     
     // Nome
     printf("Nome: ");
     scanf(" %99[^\n]", novo.nome);
-    limparBuffer();
+    limpador_de_buffer();
     
     // Duração
     int horas, minutos;
@@ -214,18 +217,18 @@ void cadastrarFilme() {
         printf("Duracao (h:mm): ");
         if (scanf("%d:%d", &horas, &minutos) != 2) {
             printf("Formato invalido! Use h:mm\n");
-            limparBuffer();
+            limpador_de_buffer();
         } else if (horas < 0 || minutos < 0 || minutos >= 60) {
             printf("Valores invalidos! Ex: 2:16\n");
         }
     } while (horas < 0 || minutos < 0 || minutos >= 60);
-    novo.duracaoMinutos = horas * 60 + minutos;
-    limparBuffer();
+    novo.duracao_do_filme = horas * 60 + minutos;
+    limpador_de_buffer();
     
     // Gênero
     printf("Genero: ");
     scanf(" %49[^\n]", novo.genero);
-    limparBuffer();
+    limpador_de_buffer();
     
     // Ano
     time_t t = time(NULL);
@@ -233,23 +236,23 @@ void cadastrarFilme() {
     do {
         printf("Ano (1888-%d): ", tm.tm_year + 1900);
         scanf("%d", &novo.ano);
-        limparBuffer();
+        limpador_de_buffer();
     } while(novo.ano < 1888 || novo.ano > (tm.tm_year + 1900));
     
     filmes[totalFilmes++] = novo;
-    salvarFilmes();
+    guardar_nome_filmes();
     
     printf("\nFilme cadastrado com sucesso:\n");
     printf("Nome: %s\nDuracao: %dh%02dm\nGenero: %s\nAno: %d\n\n",
           novo.nome, 
-          novo.duracaoMinutos / 60,
-          novo.duracaoMinutos % 60,
+          novo.duracao_do_filme / 60,
+          novo.duracao_do_filme % 60,
           novo.genero, 
           novo.ano);
 }
 
 void assistirFilme() {
-    if (!usuarioLogado || usuarioLogado->isAdmin) {
+    if (!usuarioLogado || usuarioLogado->eh_admin) {
         printf("\nAcesso restrito a usuarios comuns!\n");
         return;
     }
@@ -263,22 +266,22 @@ void assistirFilme() {
     do {
         printf("\nEscolha o filme (1-%d): ", totalFilmes);
         scanf("%d", &escolha);
-        limparBuffer();
+        limpador_de_buffer();
     } while (escolha < 1 || escolha > totalFilmes);
     
-    FilmeAssistido novo;
-    strcpy(novo.usuarioLogin, usuarioLogado->login);
-    strcpy(novo.filmeNome, filmes[escolha-1].nome);
+    filmes_assistidos novo;
+    strcpy(novo.login_do_usuario_comum, usuarioLogado->login);
+    strcpy(novo.nome_filme_assistido, filmes[escolha-1].nome);
     
     printf("Onde assistiu (plataforma): ");
-    scanf(" %49[^\n]", novo.onde);
-    limparBuffer();
+    scanf(" %49[^\n]", novo.plataforma);
+    limpador_de_buffer();
     
     do {
         printf("Quando assistiu (DD/MM/AAAA): ");
-        scanf(" %10s", novo.quando);
-        limparBuffer();
-    } while (!validarData(novo.quando));
+        scanf(" %10s", novo.data_da_visualização_filme);
+        limpador_de_buffer();
+    } while (!comfirmar_data(novo.data_da_visualização_filme));
     
     assistidos[totalAssistidos++] = novo;
     salvarAssistidos();
@@ -294,17 +297,17 @@ void listarAssistidos() {
     printf("\n=== Filmes Assistidos ===\n");
     int contador = 0;
     for (int i = 0; i < totalAssistidos; i++) {
-        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+        if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
             for (int j = 0; j < totalFilmes; j++) {
-                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
-                    int h = filmes[j].duracaoMinutos / 60;
-                    int m = filmes[j].duracaoMinutos % 60;
+                if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
+                    int h = filmes[j].duracao_do_filme / 60;
+                    int m = filmes[j].duracao_do_filme % 60;
                     printf("%d. %s (%dh%02dmin) - Assistido em %s via %s\n",
                           ++contador,
                           filmes[j].nome, 
                           h, m,
-                          assistidos[i].quando,
-                          assistidos[i].onde);
+                          assistidos[i].data_da_visualização_filme,
+                          assistidos[i].plataforma);
                     break;
                 }
             }
@@ -314,17 +317,17 @@ void listarAssistidos() {
 }
 
 void estatisticas() {
-    if (!usuarioLogado || usuarioLogado->isAdmin) {
+    if (!usuarioLogado || usuarioLogado->eh_admin) {
         printf("\nAcesso restrito a usuarios comuns!\n");
         return;
     }
     
     int totalMinutos = 0;
     for (int i = 0; i < totalAssistidos; i++) {
-        if (strcmp(assistidos[i].usuarioLogin, usuarioLogado->login) == 0) {
+        if (strcmp(assistidos[i].login_do_usuario_comum, usuarioLogado->login) == 0) {
             for (int j = 0; j < totalFilmes; j++) {
-                if (strcmp(filmes[j].nome, assistidos[i].filmeNome) == 0) {
-                    totalMinutos += filmes[j].duracaoMinutos;
+                if (strcmp(filmes[j].nome, assistidos[i].nome_filme_assistido) == 0) {
+                    totalMinutos += filmes[j].duracao_do_filme;
                     break;
                 }
             }
@@ -350,10 +353,10 @@ void menuInicial() {
         
         if (scanf("%d", &opcao) != 1) {
             printf("Entrada invalida!\n");
-            limparBuffer();
+            limpador_de_buffer();
             continue;
         }
-        limparBuffer();
+        limpador_de_buffer();
 
         switch (opcao) {
             case 1: {
@@ -365,12 +368,12 @@ void menuInicial() {
                 scanf("%49s", senha);
                 printf("Nome: ");
                 scanf("%49s", nome);
-                limparBuffer();
+                limpador_de_buffer();
                 
                 int res = cadastrarUsuario(login, senha, nome);
                 if (res == 1) {
                     printf("\nCadastro realizado! ");
-                    if (totalUsuarios == 1) printf("(Voce e o administrador)");
+                    if (total_usuarios_cadastrados == 1) printf("(Voce e o administrador)");
                     printf("\n");
                 } else if (res == 0) {
                     printf("\nLogin ja existe!\n");
@@ -386,12 +389,12 @@ void menuInicial() {
                 scanf("%49s", login);
                 printf("Senha: ");
                 scanf("%49s", senha);
-                limparBuffer();
+                limpador_de_buffer();
                 
                 usuarioLogado = fazerLogin(login, senha);
                 if (usuarioLogado) {
                     printf("\nBem-vindo, %s!\n", usuarioLogado->nome);
-                    if (usuarioLogado->isAdmin) menuAdmin();
+                    if (usuarioLogado->eh_admin) menuAdmin();
                     else menuUsuario();
                 } else {
                     printf("\nCredenciais invalidas!\n");
@@ -415,10 +418,10 @@ void menuAdmin() {
         
         if (scanf("%d", &opcao) != 1) {
             printf("Entrada invalida!\n");
-            limparBuffer();
+            limpador_de_buffer();
             continue;
         }
-        limparBuffer();
+        limpador_de_buffer();
 
         if (opcao == 1) cadastrarFilme();
         else if (opcao == 2) {
@@ -440,10 +443,10 @@ void menuUsuario() {
         
         if (scanf("%d", &opcao) != 1) {
             printf("Entrada invalida!\n");
-            limparBuffer();
+            limpador_de_buffer();
             continue;
         }
-        limparBuffer();
+        limpador_de_buffer();
 
         switch (opcao) {
             case 1: assistirFilme(); break;
@@ -459,7 +462,7 @@ void menuUsuario() {
 }
 
 int main() {
-    carregarUsuarios();
+    pegar_lista_dados_usuarios();
     carregarFilmes();
     carregarAssistidos();
     menuInicial();
